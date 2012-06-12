@@ -23,22 +23,20 @@
 
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, brackets, $, window */
+/*global define, brackets, $ */
 
 define(function (require, exports, module) {
     'use strict';
     
     // Brackets modules
-    var DocumentManager         = brackets.getModule("document/DocumentManager");
+    var CommandManager          = brackets.getModule("command/CommandManager"),
+        DocumentManager         = brackets.getModule("document/DocumentManager"),
+        ExtensionUtils          = brackets.getModule("utils/ExtensionUtils"),
+        Menus                   = brackets.getModule("command/Menus");
     
     // Load the theme stylesheet
-    var cssUrl = require.toUrl("./ambiance.css");
-    var fileRef = window.document.createElement("link");
-    fileRef.setAttribute("rel", "stylesheet");
-    fileRef.setAttribute("type", "text/css");
-    fileRef.setAttribute("href", cssUrl);
-    window.document.getElementsByTagName("head")[0].appendChild(fileRef);
-    
+    ExtensionUtils.loadStyleSheet(module, "ambiance.css");
+
     var themeName = null;
     
     // Assigne the theme to the editor.
@@ -56,24 +54,23 @@ define(function (require, exports, module) {
         setTheme();
     });
     
-    // Add menu item
-    var COMMAND_NAME = "experimental.ambience";
-    
-    var $menuItem = $("<li><a href='#'>Theme: Ambiance</a></li>");
-    $("#menu-debug-show-developer-tools").closest("ul").append($menuItem);
+    var COMMAND_ID = "theme.ambiance";
 
-        
     function toggleTheme() {
+        var checked = false;
         if (themeName) {
             themeName = null;
         } else {
             themeName = "ambiance";
+            checked = true;
         }
         setTheme();
-        $("a", $menuItem).toggleClass("selected");
+        CommandManager.get(COMMAND_ID).setChecked(checked);
     }
     
-    $menuItem.click(toggleTheme);
+    // Add menu item
+    CommandManager.register("Ambiance Theme", COMMAND_ID, toggleTheme);
     
-    // TODO: Add keyboard shortcut once API is available
+    var menu = Menus.getMenu(Menus.AppMenuBar.DEBUG_MENU);
+    menu.addMenuItem("debug-ambiance-theme", COMMAND_ID);
 });
